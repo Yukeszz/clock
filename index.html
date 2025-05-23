@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Super Advanced Digital Clock</title>
+<style>
+  /* Reset & basics */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(120deg, #1a1a2e, #16213e);
+    color: #eaeaea;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 1rem;
+    transition: background 0.5s, color 0.5s;
+    user-select: none;
+  }
+
+  /* Theme variants */
+  body.light {
+    background: linear-gradient(120deg, #f0f0f0, #cccccc);
+    color: #222;
+  }
+  body.colorful {
+    background: linear-gradient(45deg, #ff0047, #2c34c7);
+    color: #fffbf0;
+  }
+
+  h1, h2 {
+    margin: 0.3rem 0;
+  }
+
+  /* Container */
+  .container {
+    background: rgba(255 255 255 / 0.05);
+    backdrop-filter: blur(12px);
+    border-radius: 1.5rem;
+    padding: 1.5rem 2rem;
+    width: 100%;
+    max-width: 900px;
+    box-shadow: 0 8px 32px 0 rgba(31,38,135,0.37);
+  }
+
+  /* Main Clock */
+  #main-clock {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  #time {
+    font-size: 4rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #00f7ff;
+  }
+  #date, #day, #greeting {
+    font-size: 1.3rem;
+    margin: 0.3rem 0;
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin: 1rem 0;
+  }
+  button, select {
+    background: none;
+    border: 2px solid #00f7ff;
+    color: #00f7ff;
+    padding: 0.6rem 1rem;
+    border-radius: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  button:hover, select:hover {
+    background: #00f7ff;
+    color: #1a1a2e;
+  }
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  select {
+    background: transparent;
+    color: #00f7ff;
+    min-width: 150px;
+  }
+
+  /* World clocks */
+  #world-clocks {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+  .world-clock {
+    background: rgba(255 255 255 / 0.1);
+    border-radius: 1rem;
+    padding: 1rem 1.5rem;
+    min-width: 200px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    text-align: center;
+  }
+  .world-clock h3 {
+    margin: 0 0 0.3rem 0;
+  }
+  .world-clock .time {
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: #00f7ff;
+  }
+
+  /* Stopwatch & Timer */
+  .timer-container {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+  .timer-box {
+    background: rgba(255 255 255 / 0.05);
+    border-radius: 1.5rem;
+    padding: 1rem 2rem;
+    min-width: 300px;
+    text-align: center;
+    box-shadow: 0 8px 32px 0 rgba(31,38,135,0.37);
+  }
+  .timer-box h2 {
+    margin-bottom: 1rem;
+  }
+  .timer-display {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #ff6a00;
+    letter-spacing: 0.07em;
+    margin-bottom: 1rem;
+  }
+  .timer-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+  .timer-controls button {
+    border-color: #ff6a00;
+    color: #ff6a00;
+  }
+  .timer-controls button:hover {
+    background: #ff6a00;
+    color: #1a1a2e;
+  }
+
+  /* Alarm */
+  #alarm-section {
+    margin-top: 2rem;
+    text-align: center;
+  }
+  #alarm-time {
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    border: 2px solid #00f7ff;
+    background: transparent;
+    color: #00f7ff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    width: 140px;
+  }
+  #set-alarm-btn {
+    margin-left: 0.8rem;
+    border-color: #00f7ff;
+    color: #00f7ff;
+    cursor: pointer;
+  }
+  #set-alarm-btn:hover {
+    background: #00f7ff;
+    color: #1a1a2e;
+  }
+  #alarm-status {
+    margin-top: 0.8rem;
+    font-weight: 600;
+    color: #ff4444;
+  }
+
+  /* Voice toggle */
+  #voice-toggle {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  #voice-toggle label {
+    cursor: pointer;
+  }
+
+  /* Responsive */
+  @media (max-width: 700px) {
+    #time {
+      font-size: 3rem;
+    }
+    .timer-box {
+      min-width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container" role="main" aria-label="Advanced digital clock application">
+  <section id="main-clock" aria-live="polite">
+    <h1 id="time" aria-label="Current time"></h1>
+    <p id="date" aria-label="Current date"></p>
+    <p id="day" aria-label="Current day of the week"></p>
+    <p id="greeting" aria-label="Greeting message based on time of day"></p>
+  </section>
+
+  <div class="controls" role="region" aria-label="Clock controls">
+    <button id="toggle-format-btn" aria-pressed="false" aria-label="Toggle 12 or 24 hour format">Toggle 12/24 Hour</button>
+    <button id="toggle-theme-btn" aria-label="Toggle color theme">Toggle Theme</button>
+    <select id="timezone-select" aria-label="Select time zone to add world clock">
+      <option value="">Add World Clock</option>
+    </select>
+    <button id="clear-world-clocks" aria-label="Clear all added world clocks">Clear World Clocks</button>
+  </div>
+
+  <section id="world-clocks" aria-label="World clocks container" tabindex="0">
+    <!-- Dynamically added clocks here -->
+  </section>
+
+  <div class="timer-container">
+    <div class="timer-box" aria-label="Stopwatch">
+      <h2>Stopwatch</h2>
+      <div id="stopwatch-display" class="timer-display" aria-live="polite" aria-atomic="true">00:00:00.000</div>
+      <div class="timer-controls">
+        <button id="stopwatch-start">Start</button>
+        <button id="stopwatch-pause" disabled>Pause</button>
+        <button id="stopwatch-reset" disabled>Reset</button>
+      </div>
+    </div>
+
+    <div class="timer-box" aria-label="Countdown Timer">
+      <h2>Timer</h2>
+      <input type="number" id="timer-input" aria-label="Timer minutes input" placeholder="Minutes" min="1" max="999" />
+      <div id="timer-display" class="timer-display" aria-live="polite" aria-atomic="true">00:00:00</div>
+      <div class="timer-controls">
+        <button id="timer-start">Start</button>
+        <button id="timer-pause" disabled>Pause</button>
+        <button id="timer-reset" disabled>Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <section id="alarm-section" aria-label="Alarm clock">
+    <h2>Alarm Clock</h2>
+    <input type="time" id="alarm-time" aria-label="Alarm time input" />
+    <button id="set-alarm-btn">Set Alarm</button>
+    <div id="alarm-status" role="alert" aria-live="polite"></div>
+  </section>
+
+  <section id="voice-toggle" aria-label="Voice announcement toggle">
+    <input type="checkbox" id="voice-announce-checkbox" />
+    <label for="voice-announce-checkbox">Announce time every hour</label>
+  </section>
+</div>
+
+<audio id="alarm-sound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" preload="auto"></audio>
+
+<script>
+  (() => {
+    // Setup basics
+    const timeEl = document.getElementById('time');
+    const dateEl = document.getElementById('date');
+    const dayEl = document.getElementById('day');
+    const greetingEl = document.getElementById('greeting');
+    const toggleFormatBtn = document.getElementById('toggle-format-btn');
+    const toggleThemeBtn = document.getElementById('toggle-theme-btn');
+    const timezoneSelect = document.getElementById('timezone-select');
+    const worldClocksContainer = document.getElementById('world-clocks');
+    const clearWorldClocksBtn = document.getElementById('clear-world-clocks');
+    const voiceCheckbox = document.getElementById('voice-announce-checkbox');
+    const alarmSound = document.getElementById('alarm-sound');
+
+    let is24Hour = true;
+    let themeIndex = 0; // 0: dark, 1: light, 2: colorful
+
+    const themes = ['dark', 'light', 'colorful'];
+
+    // Time zones to add
+    // Source: IANA time zone database names
+    const timezones = [
+      "UTC",
+      "Europe/London",
+      "Europe/Paris",
+      "Europe/Berlin",
+      "America/New_York",
+      "America/Chicago",
+      "America/Denver",
+      "America/Los_Angeles",
+      "Asia/Tokyo",
+      "Asia/Shanghai",
+      "Asia/Kolkata",
+      "Australia/Sydney",
+      "Africa/Johannesburg",
+      "Pacific/Auckland"
+    ];
+
+    // Populate timezone selector
+    timezones.forEach(tz => {
+      const option = document.createElement('option');
+      option.value = tz;
+      option.textContent = tz.replace('_', ' ');
+      timezoneSelect.appendChild(option);
+    });
+
+    // Helpers
+    function formatTime(date, use24Hour) {
+      let h = date.getHours();
+      const m = date.getMinutes();
+      const s = date.getSeconds();
+      let ampm = '';
+      if (!use24Hour) {
+        ampm = h >= 12 ? ' PM' : ' AM';
+        h = h % 12 || 12;
+      }
+      return ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}${ampm};
+    }
+
+    function formatDate(date) {
+      const months = ["January", "February", "March", "April", "May", "June",
+                      "July", "August", "September", "October", "November", "December"];
+      return ${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()};
+    }
+
+    function formatDay(date) {
+      const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      return days[date.getDay()];
+    }
+
+    function getGreeting(hour) {
+      if (hour < 12) return "Good Morning";
+      if (hour < 18) return "Good Afternoon";
+      return "Good Evening";
+    }
+
+    // Main clock update
+    function updateMainClock() {
+      const now = new Date();
+      timeEl.textContent = formatTime(now, is24Hour);
+      timeEl.setAttribute('aria-label', Current time is ${timeEl.textContent});
+      dateEl.textContent = formatDate(now);
+      dayEl.textContent = formatDay(now);
+      greetingEl.textContent = getGreeting(now.getHours());
+    }
+
+    // World clocks management
+    const addedWorldClocks = new Map();
+
+    function addWorldClock(tz) {
+      if (!tz || addedWorldClocks.has(tz)) return;
+      const clockDiv = document.createElement('div');
+      clockDiv.className = 'world-clock';
+      clockDiv.setAttribute('data-tz', tz);
+      clockDiv.setAttribute('tabindex', '0');
+      const title = document.createElement('h3');
+      title.textContent = tz.replace('_', ' ');
+      const timeSpan = document.createElement('div');
+      timeSpan.className = 'time';
+      timeSpan.textContent = 'Loading...';
+      clockDiv.appendChild(title);
+      clockDiv.appendChild(timeSpan);
+      worldClocksContainer.appendChild(clockDiv);
+      addedWorldClocks.set(tz, clockDiv);
+    }
+
+    function updateWorldClocks() {
+      const now = new Date();
+      addedWorldClocks.forEach((clockDiv, tz) => {
+        try {
+          const options = {timeZone: tz};
+          const localeTime = new Intl.DateTimeFormat([], {hour12: !is24Hour, hour: '2-digit', minute:'2-digit', second:'2-digit', timeZone: tz}).format(now);
+          clockDiv.querySelector('.time').textContent = localeTime;
+        } catch {
+          clockDiv.querySelector('.time').textContent = 'Invalid TZ';
+        }
+      });
+    }
+
+    function clearWorldClocks() {
+      addedWorldClocks.forEach((clockDiv) => {
+        worldClocksContainer.removeChild(clockDiv);
+      });
+      addedWorldClocks.clear();
+    }
+
+    // Theme toggle
+    function cycleTheme() {
+      themeIndex = (themeIndex + 1) % themes.length;
+      document.body.classList.remove(...themes);
+      document.body.classList.add(themes[themeIndex]);
+      // Adjust colors for buttons
+      const accentColors = {
+        dark: '#00f7ff',
+        light: '#0077cc',
+        colorful: '#fffbf0',
+      };
+      const accent = accentColors[themes[themeIndex]];
+      document.querySelectorAll('button, select').forEach(el => {
+        el.style.borderColor = accent;
+        el.style.color = accent;
+      });
+    }
+
+    // 12/24 hour toggle handler
+    toggleFormatBtn.addEventListener('click', () => {
+      is24Hour = !is24Hour;
+      toggleFormatBtn.setAttribute('aria-pressed', is24Hour.toString());
+      updateMainClock();
+      updateWorldClocks();
+    });
+
+    // Theme toggle handler
+    toggleThemeBtn.addEventListener('click', () => {
+      cycleTheme();
+    });
+
+    // Timezone add handler
+    timezoneSelect.addEventListener('change', () => {
+      if(timezoneSelect.value){
+        addWorldClock(timezoneSelect.value);
+        timezoneSelect.value = '';
+      }
+    });
+
+    // Clear world clocks handler
+    clearWorldClocksBtn.addEventListener('click', () => {
+      clearWorldClocks();
+    });
+
+    // Stopwatch Implementation
+    const swDisplay = document.getElementById('stopwatch-display');
+    const swStartBtn = document.getElementById('stopwatch-start');
+    const swPauseBtn = document.getElementById('stopwatch-pause');
+    const swResetBtn = document.getElementById('stopwatch-reset');
+
+    let swStartTime = 0;
+    let swElapsed = 0;
+    let swTimerInterval = null;
+
+    function formatStopwatchTime(ms) {
+      const h = Math.floor(ms / 3600000);
+      const m = Math.floor((ms % 3600000) / 60000);
+      const s = Math.floor((ms % 60000) / 1000);
+      const msLeft = ms % 1000;
+      return ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(msLeft).padStart(3,'0')};
+    }
+
+    function updateStopwatch() {
+      swElapsed = Date.now() - swStartTime;
+      swDisplay.textContent = formatStopwatchTime(swElapsed);
+    }
+
+    swStartBtn.addEventListener('click', () => {
+      swStartTime = Date.now() - swElapsed;
+      swTimerInterval = setInterval(updateStopwatch, 50);
+      swStartBtn.disabled = true;
+      swPauseBtn.disabled = false;
+      swResetBtn.disabled = false;
+    });
+
+    swPauseBtn.addEventListener('click', () => {
+      clearInterval(swTimerInterval);
+      swTimerInterval = null;
+        swStartBtn.disabled = false;
+        swPauseBtn.disabled = true;
+    });
+    swResetBtn.addEventListener('click', () => {
+  clearInterval(swTimerInterval);
+  swElapsed = 0;
+  swDisplay.textContent = '00:00:00.000';
+  swStartBtn.disabled = false;
+  swPauseBtn.disabled = true;
+  swResetBtn.disabled = true;
+});
+
+// Timer Implementation
+const timerInput = document.getElementById('timer-input');
+const timerDisplay = document.getElementById('timer-display');
+const timerStart = document.getElementById('timer-start');
+const timerPause = document.getElementById('timer-pause');
+const timerReset = document.getElementById('timer-reset');
+
+let timerSeconds = 0;
+let timerRemaining = 0;
+let timerInterval = null;
+
+function updateTimerDisplay() {
+  const h = Math.floor(timerRemaining / 3600);
+  const m = Math.floor((timerRemaining % 3600) / 60);
+  const s = timerRemaining % 60;
+  timerDisplay.textContent = ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')};
+}
+
+timerStart.addEventListener('click', () => {
+  const inputMinutes = parseInt(timerInput.value, 10);
+  if (isNaN(inputMinutes) || inputMinutes < 1) return;
+
+  if (!timerRemaining) {
+    timerSeconds = inputMinutes * 60;
+    timerRemaining = timerSeconds;
+  }
+
+  timerInterval = setInterval(() => {
+    if (timerRemaining > 0) {
+      timerRemaining--;
+      updateTimerDisplay();
+    } else {
+      clearInterval(timerInterval);
+      alarmSound.play();
+    }
+  }, 1000);
+
+  timerStart.disabled = true;
+  timerPause.disabled = false;
+  timerReset.disabled = false;
+});
+
+timerPause.addEventListener('click', () => {
+  clearInterval(timerInterval);
+  timerStart.disabled = false;
+  timerPause.disabled = true;
+});
+
+timerReset.addEventListener('click', () => {
+  clearInterval(timerInterval);
+  timerRemaining = 0;
+  updateTimerDisplay();
+  timerStart.disabled = false;
+  timerPause.disabled = true;
+  timerReset.disabled = true;
+});
+
+// Alarm
+const alarmInput = document.getElementById('alarm-time');
+const alarmBtn = document.getElementById('set-alarm-btn');
+const alarmStatus = document.getElementById('alarm-status');
+let alarmTime = null;
+
+alarmBtn.addEventListener('click', () => {
+  if (alarmInput.value) {
+    alarmTime = alarmInput.value;
+    alarmStatus.textContent = Alarm set for ${alarmTime};
+  } else {
+    alarmTime = null;
+    alarmStatus.textContent = Alarm cleared;
+  }
+});
+
+// Voice announce
+function announceTime() {
+  const now = new Date();
+  if (voiceCheckbox.checked) {
+    const timeStr = formatTime(now, false);
+    const msg = new SpeechSynthesisUtterance(The time is now ${timeStr});
+    speechSynthesis.speak(msg);
+  }
+}
+
+// Tick functions
+setInterval(() => {
+  updateMainClock();
+  updateWorldClocks();
+
+  // check alarm
+  const now = new Date();
+  const nowStr = now.toTimeString().slice(0,5);
+  if (alarmTime === nowStr) {
+    alarmSound.play();
+    alarmStatus.textContent = ⏰ Alarm now!;
+    alarmTime = null;
+  }
+
+  // announce on the hour
+  if (now.getMinutes() === 0 && now.getSeconds() === 0) {
+    announceTime();
+  }
+}, 1000);
+
+// Init
+updateMainClock();
+cycleTheme(); // set initial theme
+})();
+</script>
+
+</body> </html>
